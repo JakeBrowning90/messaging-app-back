@@ -1,17 +1,20 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
+const messageController = require("../controllers/messageController");
 
-// const message_controller = require('../controllers/messageController');
+// CREATE new message
+router.post("/", messageController.message_create);
 
-// Create Message
+// READ all messages (for login)
+router.get("/", messageController.message_read_all);
 
-// Read 1 Message
+// READ one messages
+router.get("/:id", messageController.message_read);
 
-// Read ALL Message
+// UPDATE message (Prob don't need this)
+router.put("/:id", messageController.message_update);
 
-// Update Message
-
-// Delete Message
-
+// DELETE
+router.delete("/:id", messageController.message_delete);
 
 module.exports = router;
