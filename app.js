@@ -1,4 +1,5 @@
 var createError = require("http-errors");
+const cors = require('cors')
 var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");
@@ -9,6 +10,19 @@ var usersRouter = require("./routes/users");
 var messagesRouter = require("./routes/messages");
 
 var app = express();
+
+app.use(cors());
+
+// Set up mongoose connection
+const mongoose = require("mongoose");
+mongoose.set("strictQuery", false);
+const mongoDB = process.env.MONGODB_URI;
+
+main().catch((err) => console.log(err));
+async function main() {
+  await mongoose.connect(mongoDB);
+  console.log("Connected!")
+}
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
