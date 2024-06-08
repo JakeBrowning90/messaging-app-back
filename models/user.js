@@ -5,7 +5,8 @@ const UserSchema = new Schema(
   {
     email: { type: String, maxLength: 30, required: true },
     password: { type: String, required: true },
-    contacts: { type: Array, default: undefined },
+    // contacts: { type: Array, default: undefined },
+    contacts: [{ type: Schema.Types.ObjectId, ref: "User" }],
   },
   { toJSON: { virtuals: true } }
 );

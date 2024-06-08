@@ -22,7 +22,7 @@ exports.user_read_all = asyncHandler(async (req, res, next) => {
 });
 
 exports.user_read = asyncHandler(async (req, res, next) => {
-  const user = await User.findById(req.params.id).exec();
+  const user = await User.findById(req.params.id).populate('contacts', 'email').exec();
   res.json(user);
 });
 
