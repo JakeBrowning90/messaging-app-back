@@ -46,6 +46,18 @@ exports.message_update = asyncHandler(async (req, res, next) => {
   res.json(message);
 });
 
+exports.message_withdraw = asyncHandler(async (req, res, next) => {
+  const message = new Message({
+    author: req.body.author,
+    recipient: req.body.recipient,
+    body: "Message deleted",
+    isWithdrawn: true,
+    _id: req.params.id,
+  });
+  await Message.findByIdAndUpdate(req.params.id, message);
+  res.json(message);
+});
+
 exports.message_delete = asyncHandler(async (req, res, next) => {
   await Message.findByIdAndDelete(req.params.id);
   res.json("Deleted message");

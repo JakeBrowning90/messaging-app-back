@@ -15,7 +15,10 @@ router.get("/:id/:contact", messageController.message_read_convo);
 router.get("/:id", messageController.message_read);
 
 // UPDATE message (Prob don't need this)
-router.put("/:id", messageController.message_update);
+// router.put("/:id", messageController.message_update);
+
+// WITHDRAW message (Specific UPDATE in place of DELETE)
+router.put("/:id", messageController.message_withdraw);
 
 // DELETE (Prob don't need this?)
 router.delete("/:id", messageController.message_delete);
