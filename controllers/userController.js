@@ -17,7 +17,7 @@ exports.user_create = asyncHandler(async (req, res, next) => {
 });
 
 exports.user_read_all = asyncHandler(async (req, res, next) => {
-  const allUsers = await User.find().exec();
+  const allUsers = await User.find().populate('contacts', 'email').exec();
   res.json(allUsers);
 });
 

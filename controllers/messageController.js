@@ -20,6 +20,16 @@ exports.message_read_all = asyncHandler(async (req, res, next) => {
   res.json(allMessages);
 });
 
+exports.message_read_convo = asyncHandler(async (req, res, next) => {
+  const allMessages = await Message.find({
+    $or: [
+      { author: req.params.id, recipient: req.params.contact },
+      { author: req.params.contact, recipient: req.params.id },
+    ],
+  }).exec();
+  res.json(allMessages);
+});
+
 exports.message_read = asyncHandler(async (req, res, next) => {
   const message = await Message.findById(req.params.id).exec();
   res.json(message);
