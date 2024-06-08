@@ -14,7 +14,7 @@ router.get("/:id", messageController.message_read);
 // UPDATE message (Prob don't need this)
 router.put("/:id", messageController.message_update);
 
-// DELETE
+// DELETE (Prob don't need this?)
 router.delete("/:id", messageController.message_delete);
 
 module.exports = router;

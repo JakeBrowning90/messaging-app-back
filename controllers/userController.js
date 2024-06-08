@@ -9,6 +9,7 @@ exports.user_create = asyncHandler(async (req, res, next) => {
   const user = new User({
     email: req.body.email,
     password: req.body.password,
+    contacts: req.body.contacts,
   });
 
   await user.save();
@@ -29,6 +30,7 @@ exports.user_update = asyncHandler(async (req, res, next) => {
   const user = new User({
     email: req.body.email,
     password: req.body.password,
+    contacts: req.body.contacts,
     _id: req.params.id,
   });
   await User.findByIdAndUpdate(req.params.id, user);
