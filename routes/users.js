@@ -6,8 +6,11 @@ const userController = require("../controllers/userController");
 // CREATE new user
 router.post("/", userController.user_create);
 
-// READ all users (for login)
+// READ all users (for login?)
 router.get("/", userController.user_read_all);
+
+// READ all users by search params (for contact search)
+// router.get("/?name", userController.user_search);
 
 // READ one user (for login)
 router.get("/:id", userController.user_read);
