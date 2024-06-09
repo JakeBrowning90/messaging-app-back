@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const passport = require("passport");
 const userController = require("../controllers/userController");
+
+const passport = require("passport");
 
 // CREATE new user
 router.post("/", userController.user_create);
@@ -15,18 +16,20 @@ router.get("/", userController.user_read_all);
 // READ one user (for login)
 router.get("/:id", userController.user_read);
 
+// POST login info
+router.post(
+  "/log-in",
+  passport.authenticate("local", {
+    successRedirect: "/success",
+    failureRedirect: "/failure"
+  }),
+  userController.user_log_in
+);
+
 // UPDATE
 router.put("/:id", userController.user_update);
 
 // DELETE
 router.delete("/:id", userController.user_delete);
-
-// Login
-// router.post('/login',
-//     passport.authenticate('local', {
-//         // failureMessage: true
-//     }),
-//     userController.user_login
-// );
 
 module.exports = router;

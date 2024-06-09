@@ -13,6 +13,45 @@ var app = express();
 
 app.use(cors());
 
+const session = require("express-session");
+const passport = require("passport");
+const LocalStrategy = require("passport-local");
+
+passport.use(
+  new LocalStrategy(async (username, password, done) => {
+    try {
+      console.log("Authenticating...")
+      const user = await User.findOne({ email: username });
+      if (!user) {
+        return done(null, false, { message: "Incorrect username" });
+      }
+      if (user.password !== password) {
+        return done(null, false, { message: "Incorrect password" });
+      }
+      return done(null, user);
+    } catch (err) {
+      return done(err);
+    }
+  })
+);
+
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+  try {
+    const user = await User.findById(id);
+    done(null, user);
+  } catch (err) {
+    done(err);
+  }
+});
+app.use(passport.initialize());
+app.use(session({ secret: "cats", resave: false, saveUninitialized: true }));
+app.use(passport.session());
+app.use(express.urlencoded({ extended: false }));
+
 // Set up mongoose connection
 const mongoose = require("mongoose");
 mongoose.set("strictQuery", false);
@@ -33,6 +72,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
+
+app.use(passport.initialize());
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);

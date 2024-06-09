@@ -6,19 +6,24 @@ const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
 
 exports.user_create = asyncHandler(async (req, res, next) => {
-  const user = new User({
-    email: req.body.email,
-    password: req.body.password,
-    contacts: req.body.contacts,
-  });
-
-  await user.save();
-  res.json(user);
+  try {
+    const user = new User({
+      email: req.body.email,
+      password: req.body.password,
+      contacts: req.body.contacts,
+    });
+    await user.save();
+    res.json(user);
+  } catch (err) {
+    return next(err);
+  }
 });
 
 exports.user_read_all = asyncHandler(async (req, res, next) => {
   const search = new RegExp(`${req.query.name}`);
-  const allUsers = await User.find({email: search}).populate('contacts', 'email').exec();
+  const allUsers = await User.find({ email: search })
+    .populate("contacts", "email")
+    .exec();
   res.json(allUsers);
 });
 
@@ -28,8 +33,15 @@ exports.user_read_all = asyncHandler(async (req, res, next) => {
 // });
 
 exports.user_read = asyncHandler(async (req, res, next) => {
-  const user = await User.findById(req.params.id).populate('contacts', 'email').exec();
+  const user = await User.findById(req.params.id)
+    .populate("contacts", "email")
+    .exec();
   res.json(user);
+});
+
+exports.user_log_in = asyncHandler(async (req, res, next) => {
+  console.log(req.user);
+  res.json("Finding user...");
 });
 
 exports.user_update = asyncHandler(async (req, res, next) => {
