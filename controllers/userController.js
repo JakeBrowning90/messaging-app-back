@@ -4,12 +4,14 @@ const User = require("../models/user");
 const asyncHandler = require("express-async-handler");
 const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 exports.user_create = asyncHandler(async (req, res, next) => {
   try {
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const user = new User({
       email: req.body.email,
-      password: req.body.password,
+      password: hashedPassword,
       contacts: req.body.contacts,
     });
     await user.save();
@@ -40,8 +42,19 @@ exports.user_read = asyncHandler(async (req, res, next) => {
 });
 
 exports.user_log_in = asyncHandler(async (req, res, next) => {
-  console.log(req.user);
-  res.json("Finding user...");
+  jwt.sign(
+    { user: req.user },
+    process.env.SECRET_KEY,
+    { expiresIn: "30m" },
+    (err, token) => {
+      res.json({
+        email: req.user.email,
+        id: req.user._id,
+        // Add "Bearer" on frontend
+        token: token,
+      });
+    }
+  );
 });
 
 exports.user_update = asyncHandler(async (req, res, next) => {
