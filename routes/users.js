@@ -20,7 +20,7 @@ router.post(
   "/log-in",
   passport.authenticate("local", {
     // successRedirect: "/success",
-    failureRedirect: "/failure",
+    // failureRedirect: "/failure",
     session: false
   }),
   userController.user_log_in
