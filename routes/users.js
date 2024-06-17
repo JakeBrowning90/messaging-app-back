@@ -29,6 +29,9 @@ router.post(
 // UPDATE
 router.put("/:id", userController.user_update);
 
+// UPDATE Contacts array
+router.put("/add-contact/:id", userController.user_contact_update);
+
 // DELETE
 router.delete("/:id", userController.user_delete);
 
