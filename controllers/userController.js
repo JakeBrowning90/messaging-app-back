@@ -131,24 +131,35 @@ exports.user_update = [
 ];
 
 exports.user_contact_update = asyncHandler(async (req, res, next) => {
-  const oldUser = await User.findById(req.params.id)
-    .populate("contacts", "email")
-    .exec();
+  const sendingUser = await User.findById(req.params.id).exec();
+  let addedContactId = req.body.contacts[req.body.contacts.length - 1];
+  const addedContact = await User.findById(addedContactId).exec();
+  let recipContacts = addedContact.contacts;
+  recipContacts.push(req.params.id)
 
-  const user = new User({
-    email: oldUser.email,
-    password: oldUser.password,
+  // const errors1 = validationResult(req);
+  const user1 = new User({
+    email: sendingUser.email,
+    password: sendingUser.password,
     contacts: req.body.contacts,
-    _id: oldUser.id,
+    _id: req.params.id,
   });
-  await User.findByIdAndUpdate(oldUser.id, user);
-  // res.json(user);
-  // if (!errors.isEmpty()) {
-  //   res.json(errors.array());
-  // } else {
-    await user.save();
-    res.json(user);
-  // }
+  await User.findByIdAndUpdate(req.params.id, user1);
+
+  // await user1.save();
+
+  // const errors2 = validationResult(req);
+  const user2 = new User({
+    email: addedContact.email,
+    password: addedContact.password,
+    contacts: recipContacts,
+    _id: addedContactId,
+  });
+  await User.findByIdAndUpdate(addedContactId, user2);
+
+  // await user2.save();
+  // res.json(user2);
+  next();
 });
 
 exports.user_delete = asyncHandler(async (req, res, next) => {
