@@ -11,8 +11,4 @@ const MessageSchema = new Schema(
   { timestamps: true, toJSON: { virtuals: true } }
 );
 
-// MessageSchema.virtual("url").get(function () {
-//     return`/posts/${this._id}`;
-// });
-
 module.exports = mongoose.model("Message", MessageSchema);

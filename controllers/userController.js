@@ -7,6 +7,12 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 exports.user_create = [
+  body("displayName")
+    .trim()
+    .isLength({ min: 1 })
+    .withMessage("Display name required")
+    .isLength({ max: 30 })
+    .withMessage("Display name must not exceed 30 characters"),
   body("email")
     .trim()
     .isLength({ min: 1 })
@@ -35,6 +41,8 @@ exports.user_create = [
     const errors = validationResult(req);
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const user = new User({
+      displayName: req.body.displayName,
+      status: "New user",
       email: req.body.email,
       password: hashedPassword,
       contacts: req.body.contacts,
@@ -51,20 +59,16 @@ exports.user_create = [
 
 exports.user_read_all = asyncHandler(async (req, res, next) => {
   const search = new RegExp(`${req.query.name}`);
-  const allUsers = await User.find({ email: search })
-    .populate("contacts", "email")
+  const allUsers = await User.find({ displayName: search })
+    .populate("contacts", ["displayName", "status"])
     .exec();
   res.json(allUsers);
 });
 
-// exports.user_search = asyncHandler(async (req, res, next) => {
-//   const allUsers = await User.find().populate('contacts', 'email').exec();
-//   res.json(allUsers);
-// });
 
 exports.user_read = asyncHandler(async (req, res, next) => {
   const user = await User.findById(req.params.id)
-    .populate("contacts", "email")
+    .populate("contacts", ["displayName", "status"])
     .exec();
   res.json(user);
 });
@@ -86,20 +90,16 @@ exports.user_log_in = asyncHandler(async (req, res, next) => {
 });
 
 exports.user_update = [
-  body("email")
+  body("displayName")
     .trim()
     .isLength({ min: 1 })
-    .withMessage("Email required")
-    .isEmail()
-    .withMessage("Invalid email address")
+    .withMessage("Display name required")
     .isLength({ max: 30 })
-    .withMessage("Email must not exceed 30 characters")
-    .custom(async (value) => {
-      const existingUser = await User.findOne({ email: value });
-      if (existingUser) {
-        throw new Error("Email already in use.");
-      }
-    }),
+    .withMessage("Display name must not exceed 30 characters"),
+  body("status")
+    .trim()
+    .isLength({ max: 30 })
+    .withMessage("Status must not exceed 30 characters"),
   body("password")
     .trim()
     .isLength({ min: 8, max: 20 })
@@ -111,12 +111,16 @@ exports.user_update = [
     .withMessage("Typed passwords do not match"),
 
   asyncHandler(async (req, res, next) => {
+    const sendingUser = await User.findById(req.params.id).exec();
+
     const errors = validationResult(req);
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const user = new User({
-      email: req.body.email,
+      displayName: req.body.displayName,
+      status: req.body.status,
+      email: sendingUser.email,
       password: hashedPassword,
-      contacts: req.body.contacts,
+      contacts: sendingUser.contacts,
       _id: req.params.id,
     });
     await User.findByIdAndUpdate(req.params.id, user);
@@ -135,10 +139,12 @@ exports.user_contact_update = asyncHandler(async (req, res, next) => {
   let addedContactId = req.body.contacts[req.body.contacts.length - 1];
   const addedContact = await User.findById(addedContactId).exec();
   let recipContacts = addedContact.contacts;
-  recipContacts.push(req.params.id)
+  recipContacts.push(req.params.id);
 
   // const errors1 = validationResult(req);
   const user1 = new User({
+    displayName: sendingUser.displayName,
+    status: sendingUser.status,
     email: sendingUser.email,
     password: sendingUser.password,
     contacts: req.body.contacts,
@@ -150,6 +156,8 @@ exports.user_contact_update = asyncHandler(async (req, res, next) => {
 
   // const errors2 = validationResult(req);
   const user2 = new User({
+    displayName: addedContact.displayName,
+    status: addedContact.status,
     email: addedContact.email,
     password: addedContact.password,
     contacts: recipContacts,
