@@ -58,19 +58,30 @@ exports.user_create = [
 ];
 
 exports.user_read_all = asyncHandler(async (req, res, next) => {
-  const search = new RegExp(`${req.query.name}`);
-  const allUsers = await User.find({ displayName: search })
-    .populate("contacts", ["displayName", "status"])
-    .exec();
-  res.json(allUsers);
+  jwt.verify(req.token, process.env.SECRET_KEY, async (err, authData) => {
+    if (err) {
+      res.sendStatus(403);
+    } else {
+      const search = new RegExp(`${req.query.name}`);
+      const allUsers = await User.find({ displayName: search })
+        .populate("contacts", ["displayName", "status"])
+        .exec();
+      res.json(allUsers);
+    }
+  });
 });
 
-
 exports.user_read = asyncHandler(async (req, res, next) => {
-  const user = await User.findById(req.params.id)
-    .populate("contacts", ["displayName", "status"])
-    .exec();
-  res.json(user);
+  jwt.verify(req.token, process.env.SECRET_KEY, async (err, authData) => {
+    if (err) {
+      res.sendStatus(403);
+    } else {
+      const user = await User.findById(req.params.id)
+        .populate("contacts", ["displayName", "status"])
+        .exec();
+      res.json(user);
+    }
+  });
 });
 
 exports.user_log_in = asyncHandler(async (req, res, next) => {
@@ -135,39 +146,39 @@ exports.user_update = [
 ];
 
 exports.user_contact_update = asyncHandler(async (req, res, next) => {
-  const sendingUser = await User.findById(req.params.id).exec();
-  let addedContactId = req.body.contacts[req.body.contacts.length - 1];
-  const addedContact = await User.findById(addedContactId).exec();
-  let recipContacts = addedContact.contacts;
-  recipContacts.push(req.params.id);
+  jwt.verify(req.token, process.env.SECRET_KEY, async (err, authData) => {
+    if (err) {
+      res.sendStatus(403);
+    } else {
+      const sendingUser = await User.findById(req.params.id).exec();
+      let addedContactId = req.body.contacts[req.body.contacts.length - 1];
+      const addedContact = await User.findById(addedContactId).exec();
+      let recipContacts = addedContact.contacts;
+      recipContacts.push(req.params.id);
 
-  // const errors1 = validationResult(req);
-  const user1 = new User({
-    displayName: sendingUser.displayName,
-    status: sendingUser.status,
-    email: sendingUser.email,
-    password: sendingUser.password,
-    contacts: req.body.contacts,
-    _id: req.params.id,
+      const user1 = new User({
+        displayName: sendingUser.displayName,
+        status: sendingUser.status,
+        email: sendingUser.email,
+        password: sendingUser.password,
+        contacts: req.body.contacts,
+        _id: req.params.id,
+      });
+      await User.findByIdAndUpdate(req.params.id, user1);
+
+      const user2 = new User({
+        displayName: addedContact.displayName,
+        status: addedContact.status,
+        email: addedContact.email,
+        password: addedContact.password,
+        contacts: recipContacts,
+        _id: addedContactId,
+      });
+      await User.findByIdAndUpdate(addedContactId, user2);
+
+      next();
+    }
   });
-  await User.findByIdAndUpdate(req.params.id, user1);
-
-  // await user1.save();
-
-  // const errors2 = validationResult(req);
-  const user2 = new User({
-    displayName: addedContact.displayName,
-    status: addedContact.status,
-    email: addedContact.email,
-    password: addedContact.password,
-    contacts: recipContacts,
-    _id: addedContactId,
-  });
-  await User.findByIdAndUpdate(addedContactId, user2);
-
-  // await user2.save();
-  // res.json(user2);
-  next();
 });
 
 exports.user_delete = asyncHandler(async (req, res, next) => {

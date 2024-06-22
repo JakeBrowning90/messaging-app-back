@@ -3,17 +3,24 @@ const Message = require("../models/message");
 
 const asyncHandler = require("express-async-handler");
 const { body, validationResult } = require("express-validator");
+const jwt = require("jsonwebtoken");
 
 // Create new message with Author and Recipient
 exports.message_create = asyncHandler(async (req, res, next) => {
-  const message = new Message({
-    author: req.body.author,
-    recipient: req.body.recipient,
-    body: req.body.body,
-  });
+  jwt.verify(req.token, process.env.SECRET_KEY, async (err, authData) => {
+    if (err) {
+      res.sendStatus(403);
+    } else {
+      const message = new Message({
+        author: req.body.author,
+        recipient: req.body.recipient,
+        body: req.body.body,
+      });
 
-  await message.save();
-  res.json(message);
+      await message.save();
+      res.json(message);
+    }
+  });
 });
 
 // Read ALL messages (demo function)
@@ -29,8 +36,7 @@ exports.message_read_convo = asyncHandler(async (req, res, next) => {
       { author: req.params.id, recipient: req.params.contact },
       { author: req.params.contact, recipient: req.params.id },
     ],
-  })
-    .exec();
+  }).exec();
   res.json(allMessages);
 });
 

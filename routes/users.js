@@ -2,18 +2,16 @@ const express = require("express");
 const router = express.Router();
 const userController = require("../controllers/userController");
 const passport = require("passport");
+middlewares = require("../config/middlewares")
 
 // CREATE new user
 router.post("/", userController.user_create);
 
-// READ all users (for login?)
-router.get("/", userController.user_read_all);
+// READ all users (Returns users matching regex)*
+router.get("/", middlewares.verifyToken, userController.user_read_all);
 
-// READ all users by search params (for contact search)
-// router.get("/?name", userController.user_search);
-
-// READ one user (for login)
-router.get("/:id", userController.user_read);
+// READ one user (Gets current user info for session)*
+router.get("/:id", middlewares.verifyToken, userController.user_read);
 
 // POST login info
 router.post(
@@ -26,13 +24,13 @@ router.post(
   userController.user_log_in
 );
 
-// UPDATE
+// UPDATE Display name, Status, PW 
 router.put("/:id", userController.user_update);
 
-// UPDATE Contacts array
-router.put("/add-contact/:id", userController.user_contact_update);
+// UPDATE Contacts array *
+router.put("/add-contact/:id", middlewares.verifyToken, userController.user_contact_update);
 
-// DELETE
+// DELETE (currently unused)
 router.delete("/:id", userController.user_delete);
 
 module.exports = router;
