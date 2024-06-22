@@ -29,7 +29,8 @@ exports.message_read_convo = asyncHandler(async (req, res, next) => {
       { author: req.params.id, recipient: req.params.contact },
       { author: req.params.contact, recipient: req.params.id },
     ],
-  }).exec();
+  })
+    .exec();
   res.json(allMessages);
 });
 

@@ -5,7 +5,7 @@ const MessageSchema = new Schema(
   {
     author: { type: Schema.Types.ObjectId, ref: "User", required: true },
     recipient: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    body: { type: String, required: true },
+    body: { type: String, maxLength: 500, required: true },
     isWithdrawn: { type: Boolean, default: false, required: true },
   },
   { timestamps: true, toJSON: { virtuals: true } }
