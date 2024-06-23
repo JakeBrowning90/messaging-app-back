@@ -24,7 +24,7 @@ exports.user_create = [
     .custom(async (value) => {
       const existingUser = await User.findOne({ email: value });
       if (existingUser) {
-        throw new Error("Email already in use.");
+        throw new Error("Email already in use");
       }
     }),
   body("password")
@@ -134,11 +134,13 @@ exports.user_update = [
       contacts: sendingUser.contacts,
       _id: req.params.id,
     });
-    await User.findByIdAndUpdate(req.params.id, user);
-    res.json(user);
+    // await User.findByIdAndUpdate(req.params.id, user);
+    // res.json(user);
     if (!errors.isEmpty()) {
       res.json(errors.array());
     } else {
+      await User.findByIdAndUpdate(req.params.id, user);
+
       await user.save();
       res.json(user);
     }
