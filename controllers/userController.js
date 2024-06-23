@@ -109,6 +109,8 @@ exports.user_update = [
     .withMessage("Display name must not exceed 30 characters"),
   body("status")
     .trim()
+    .isLength({ min: 1 })
+    .withMessage("Status required")
     .isLength({ max: 30 })
     .withMessage("Status must not exceed 30 characters"),
   body("password")
@@ -140,8 +142,6 @@ exports.user_update = [
       res.json(errors.array());
     } else {
       await User.findByIdAndUpdate(req.params.id, user);
-
-      await user.save();
       res.json(user);
     }
   }),
