@@ -62,7 +62,7 @@ exports.user_read_all = asyncHandler(async (req, res, next) => {
     if (err) {
       res.sendStatus(403);
     } else {
-      const search = new RegExp(`${req.query.name}`);
+      const search = new RegExp(`${req.query.name}`, 'i');
       const allUsers = await User.find({ displayName: search })
         .populate("contacts", ["displayName", "status"])
         .exec();
