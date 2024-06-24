@@ -6,9 +6,9 @@ const User = require("../models/user");
 
 passport.use(
   new LocalStrategy(async function verify(email, password, done) {
-    console.log(`Logging in ${email}...`)
+    // console.log(`Logging in ${email}...`)
     try {
-      const user = await User.findOne({ email: email });
+      const user = await User.findOne({ email: email.toLowerCase() });
       if (!user) {
         return done(null, false, { message: "Incorrect email" });
       }

@@ -22,7 +22,7 @@ exports.user_create = [
     .isLength({ max: 30 })
     .withMessage("Email must not exceed 30 characters")
     .custom(async (value) => {
-      const existingUser = await User.findOne({ email: value });
+      const existingUser = await User.findOne({ email: value.toLowerCase() });
       if (existingUser) {
         throw new Error("Email already in use");
       }
@@ -43,7 +43,7 @@ exports.user_create = [
     const user = new User({
       displayName: req.body.displayName,
       status: "New user",
-      email: req.body.email,
+      email: req.body.email.toLowerCase(),
       password: hashedPassword,
       contacts: req.body.contacts,
     });
